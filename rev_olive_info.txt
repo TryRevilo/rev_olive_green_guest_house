@@ -1,0 +1,15 @@
+single 1000 - normal
+double 1500 - 
+Family 2000 ()
+
+Rooms 32
+
+Hall 70
+
+parking 3 / 10
+
+Breakfast 250
+Lunch Per order specification
+Supper Per order specification
+
+Phone Number +254 724 238 178
