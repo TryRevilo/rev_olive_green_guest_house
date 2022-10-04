@@ -1,41 +1,48 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
+//Import PHPMailer classes into the global namespace
+//These must be at the top of your script, not inside a function
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'contact@example.com';
+require 'PHPMailer/PHPMailer/Exception.php';
+require 'PHPMailer/PHPMailer/PHPMailer.php';
+require 'PHPMailer/PHPMailer/SMTP.php';
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+//Create an instance; passing `true` enables exceptions
+$mail = new PHPMailer(true);
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+include '../rev_contact_us_email_html.php';
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+$to = 'info@olivegreenguesthouse.co.ke';
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
+$name = $_POST['name'];
+$email = $_POST['email'];
+$subject = $_POST['subject'];
+$emailSendMessage = $_POST['message'];
 
-  echo $contact->send();
+$revSendBody = revEmailTemplate($name, $emailSendMessage, $email); 
+
+//Set PHPMailer to use the sendmail transport
+$mail->isSendmail();
+//Set who the message is to be sent from
+$mail->setFrom($email, $name);
+//Set an alternative reply-to address
+$mail->addReplyTo($to, 'Olive Green Guest House');
+//Set who the message is to be sent to
+$mail->addAddress($to, 'Olive Green Guest House');
+$mail->addAddress('tryRevilo@Yahoo.com', 'Olive Green Guest House');
+$mail->addAddress($email, 'Olive Green Guest House');
+//Set the subject line
+$mail->Subject = $subject;
+//convert HTML into a basic plain-text alternative body
+$mail->msgHTML($revSendBody);
+//Replace the plain text body with one created manually
+$mail->AltBody = $emailSendMessage;
+
+//send the message, check for errors
+if (!$mail->send()) {
+  echo 'Mailer Error: ' . $mail->ErrorInfo;
+} else {
+  echo 'OK';
+}
 ?>
